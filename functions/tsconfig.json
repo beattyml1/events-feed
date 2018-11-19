@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "lib": ["es6", "es2017", "es2016"],
+    "module": "commonjs",
+    "noImplicitReturns": true,
+    "outDir": "lib",
+    "sourceMap": true,
+    "target": "es6"
+  },
+  "compileOnSave": true,
+  "include": [
+    "src"
+  ],
+  "files": ["node_modules/typescript/lib/lib.es6.d.ts"]
+}

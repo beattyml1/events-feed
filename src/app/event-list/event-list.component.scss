@@ -1,0 +1,15 @@
+.summarize {
+  text-overflow: ellipsis;
+  text-wrap: none;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.event-list th {
+  text-align: left;
+}
+
+.event-list {
+  max-width: 100%;
+  overflow-x: hidden;
+}
