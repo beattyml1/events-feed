@@ -10,7 +10,7 @@
     ]
   },
   "hosting": {
-    "public": "dist",
+    "public": "dist/events-feed",
     "ignore": [
       "firebase.json",
       "**/.*",

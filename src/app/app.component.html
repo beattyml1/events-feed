@@ -1,4 +1,12 @@
 <!--The content below is only a placeholder and can be replaced.-->
+<header>
+  <a routerLink="/login" *ngIf="userData$ | async">Login</a>
+</header>
 
+<main>
+  <router-outlet></router-outlet>
+</main>
 
-<router-outlet></router-outlet>
+<footer>
+
+</footer>
