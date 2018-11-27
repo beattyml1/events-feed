@@ -1,13 +1,19 @@
 import { Injectable } from '@angular/core';
 // import 'rxjs/add/operator/toPromise';
+import {AngularFirestore} from 'angularfire2/firestore'
 import { AngularFireAuth } from 'angularfire2/auth';
 import * as firebase from 'firebase/app';
+import {NgRedux} from "@angular-redux/store";
+import {AppState} from "../AppState";
+import {UserActions} from "../actions";
 
 @Injectable()
 export class AuthService {
 
   constructor(
-   public afAuth: AngularFireAuth
+   private store: NgRedux<AppState>,
+   public afAuth: AngularFireAuth,
+   private db: AngularFirestore
   ) {}
 
   // doFacebookLogin(){
@@ -46,6 +52,7 @@ export class AuthService {
       this.afAuth.auth
       .signInWithPopup(provider)
       .then(res => {
+        this.store.dispatch(UserActions.setUserData(res))
         resolve(res);
       }, err => {
         console.log(err);
@@ -58,6 +65,7 @@ export class AuthService {
     return new Promise<any>((resolve, reject) => {
       firebase.auth().createUserWithEmailAndPassword(value.email, value.password)
       .then(res => {
+        this.store.dispatch(UserActions.setUserData(res))
         resolve(res);
       }, err => reject(err));
     });
@@ -67,6 +75,7 @@ export class AuthService {
     return new Promise<any>((resolve, reject) => {
       firebase.auth().signInWithEmailAndPassword(value.email, value.password)
       .then(res => {
+        this.store.dispatch(UserActions.setUserData(res))
         resolve(res);
       }, err => reject(err));
     });
@@ -76,6 +85,7 @@ export class AuthService {
     return new Promise((resolve, reject) => {
       if (firebase.auth().currentUser) {
         this.afAuth.auth.signOut()
+        this.store.dispatch(UserActions.setUserData(null))
         resolve();
       } else {
         reject();

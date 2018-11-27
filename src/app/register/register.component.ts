@@ -48,7 +48,7 @@ export class RegisterComponent {
    tryGoogleLogin(){
      this.authService.doGoogleLogin()
      .then(res =>{
-       this.router.navigate(['/user']);
+       this.router.navigate(['/']);
      }, err => console.log(err)
      )
    }

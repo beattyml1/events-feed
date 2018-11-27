@@ -1,5 +1,7 @@
 import * as request from 'request-promise-native';
 import {pageScraper} from "./PageScraper";
+import * as admin from "firebase-admin";
+import {CollectionReference} from "firebase/firestore";
 
 function flatten<T=any> (list: T[][]){
   return list.reduce((acc, item) => item ? [...acc, ...item] : acc, [])
@@ -21,7 +23,7 @@ export class Scraper {
 
   async getSources() {
     let sources = this.db.collection('sources');
-    return (await sources.get()).docs.map(_ => _.data());
+    return (await sources.get()).docs.map(_ => ({ ..._.data(), id: _.id }));
   }
 
   async scrape() {
@@ -58,12 +60,30 @@ export class Scraper {
   async persistEvents(events: any[]) {
     try {
       console.log(`Persisting ${events&&events.length} events`)
-      console.log(JSON.stringify(events));
+      // console.log(JSON.stringify(events));
       let eventsCollection = this.db.collection('events');
-      return await Promise.all(events.map(e => eventsCollection.add(formatObjectForFireStore(e))));
+      return await Promise.all(events.map(e => this.persistEvent(eventsCollection, e)));
     } catch (e) {
       console.error(e);
       throw Error(`PersistEventsError: ${e}`);
+    }
+  }
+
+  async persistEvent(eventsCollection: CollectionReference, event: any) {
+    let existingEvents = await eventsCollection
+      .where('title', "==", event.title || null)
+      .where('source', "==", event.source || null)
+      .where('date.day', '==', event.date.day || null)
+      .where('date.month', '==', event.date.month || null)
+      .get();
+
+    if (!existingEvents.docs.length) {
+      console.log(`Adding new event ${event.title} @ ${event.location&&event.location.name}`);
+      return await eventsCollection.add(formatObjectForFireStore(event));
+    }
+    else {
+      console.log(`Updating existing event ${event.title} @ ${event.location&&event.location.name}`);
+      return await existingEvents.docs[0].ref.set(formatObjectForFireStore(event));
     }
   }
 }

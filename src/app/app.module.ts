@@ -14,14 +14,14 @@ import {AuthGuard} from "./core/auth.guard";
 import {UserResolver} from "./user/user.resolver";
 import {UserService} from "./core/user.service";
 import {AuthService} from "./core/auth.service";
-import { NgReduxModule, NgRedux } from '@angular-redux/store';
+import { NgReduxModule, NgRedux, DevToolsExtension } from '@angular-redux/store';
 import { rootReducer } from './reducers';
 
 import {
   MatCheckboxModule, MatInputModule, MatDatepickerModule,MatSlideToggleModule, MatRadioModule, MatSelectModule, // MatAutocompleteModule,  MatSliderModule,
   MatTableModule, MatTabsModule, MatDialogModule, MatCardModule, MatMenuModule, MatFormFieldModule,
   MatDividerModule,  MatIconModule, MatProgressSpinnerModule,
-  MatButtonModule, MatButtonToggleModule,
+  MatButtonModule, MatButtonToggleModule, MatExpansionModule,
   MatListModule, MatPaginatorModule, MatSidenavModule
 } from '@angular/material';
 import {UserComponent} from "./user/user.component";
@@ -30,6 +30,7 @@ import {LoginComponent} from "./login/login.component";
 import {FormsModule, ReactiveFormsModule} from "@angular/forms";
 import {AppState} from "./AppState";
 import {AnyAction, Reducer} from "redux";
+import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 
 
 @NgModule({
@@ -43,24 +44,32 @@ import {AnyAction, Reducer} from "redux";
   ],
   imports: [
     BrowserModule,
+    BrowserAnimationsModule,
     AppRoutingModule,
     NgReduxModule,
     FormsModule,
     ReactiveFormsModule,
     MatCheckboxModule, MatInputModule, MatDatepickerModule,MatSlideToggleModule, MatRadioModule, MatSelectModule, // MatAutocompleteModule,  MatSliderModule,
     MatTableModule, MatTabsModule, MatDialogModule, MatCardModule, MatMenuModule, MatFormFieldModule,
-    MatDividerModule,  MatIconModule, MatProgressSpinnerModule,
+    MatDividerModule,  MatIconModule, MatProgressSpinnerModule, MatExpansionModule,
     MatButtonModule, MatButtonToggleModule,
     MatListModule, MatPaginatorModule, MatSidenavModule,
     AngularFireModule.initializeApp(environment.firebase),
-    AngularFirestoreModule,
+    AngularFirestoreModule.enablePersistence(),
     AngularFireAuthModule, // imports firebase/auth, only needed for auth features
   ],
   providers: [AuthService, UserService, UserResolver, AuthGuard, LoggedinGuard],
   bootstrap: [AppComponent]
 })
 export class AppModule {
-  constructor(ngRedux: NgRedux<AppState>) {
-    ngRedux.configureStore(rootReducer as Reducer<AppState, AnyAction>, { } );
+  constructor(ngRedux: NgRedux<AppState>, reduxDevTools: DevToolsExtension) {
+    let enhancers = [];
+    // ... add whatever other enhancers you want.
+
+    // You probably only want to expose this tool in devMode.
+    if (reduxDevTools.isEnabled()) {
+      enhancers = [ ...enhancers, reduxDevTools.enhancer() ];
+    }
+    ngRedux.configureStore(rootReducer as Reducer<AppState, AnyAction>, { }, [],  enhancers);
   }
 }

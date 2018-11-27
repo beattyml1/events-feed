@@ -4,7 +4,7 @@ service cloud.firestore {
 
 
     function isCurrentUser(user) {
-        return request.auth.uid && request.auth.uid == user;
+        return request.auth.uid != null && request.auth.uid == user;
     }
 
     match /events {
@@ -16,9 +16,7 @@ service cloud.firestore {
       }
     }
 
-    match /starred/{user} {
-      allow read, write: if isCurrentUser(user);
-    }
+
 
     match /rsvps {
       allow read: if true;
@@ -45,6 +43,13 @@ service cloud.firestore {
         allow read;
         allow write: if false;
       }
+    }
+
+    match /users/{user} {
+        allow read, write: if isCurrentUser(user);
+        match /starred/{eventId} {
+          allow read, write: if isCurrentUser(user);
+        }
     }
 
     match /user_preferences/{user} {
